@@ -1,0 +1,72 @@
+ZX Spectrum Color Model
+B=1,R=2,G=4
+
+000 0 black
+001 1 BLUE
+010 2 RED
+011 3 magenta
+100 4 GREEN
+101 5 cyan
+110 6 yellow
+111 7 white
+
+-------------------------------------------------------------------------------
+
+HSV (HSL) Color model
+ Angle:              Color mapping
+        0                 2
+ 300    R    60      3    R    6
+    m .---. y         m .---. y
+     |  +  |           |  +  |
+    B '---' G         B '---' G
+ 240    c    120     1    c    4
+       180                5      
+
+Heat Map (240deg -> 0deg) (black -> BcGyR -> white)
+
+9100 REM Heat Map (HSV 240deg -> 0deg)
+9101 DATA 0,1,5,4,6,2,7
+
+-------------------------------------------------------------------------------
+
+Heat Map adapted combined with dithering
+9100 REM Heat Map (HSV) color pairs
+9101 DATA 0,1, 1,5, 5,4, 4,6, 6,2, 2,7
+
+-------------------------------------------------------------------------------
+
+Dithering pattern
+
+   chr$(32), chr$(137)
+   chr$(32), chr$(144)
+   FOR i=0 TO 7
+   POKE USR "a"+i,  BIN 01010101
+   POKE USR "a"+i+1,BIN 10101010 
+   NEXT i
+
+ Simple 
+ 8 4 2 1 . . 8 4 2 1 . . 8 4 2 1 .
+ ---------   =========   ---------
+ . . . . 0   . o . o 6   o o o o f
+ . . . . 0   o . o . a   o o o o f
+ . . . . 0   . o . o 6   o o o o f
+ . . . . 0   o . o . a   o o o o f
+
+ 8 4 2 1 . . 8 4 2 1 . . 8 4 2 1 . . 8 4 2 1 .
+ ---------   =========   =========   ---------
+ . . . . 0     o   o 5     o * o !   o o o o f
+ . . . . 0   o   .   8   o   o * !   o o o o f
+ . . . . 0     .   o 1   * o   o !   o o o o f
+ . . . . 0   .   o   2   o   o   !   o o o o f
+
+ 8 4 2 1 . . 8 4 2 1 . . 8 4 2 1 . . 8 4 2 1 . . 8 4 2 1
+ . . . . 0   . o . - 4   . o . o 5   * o . o d   o o o o f
+ . . . . 0   o . - . 8   o . o . a   o * o . e   o o o o f
+ . . . . 0   . - . o 1   . o . o 5   . o * o 7   o o o o f
+ . . . . 0   - . o . 2   o . o . a   o . o * b   o o o o f
+
+ 8 4 2 1 . . 8 4 2 1 . . 8 4 2 1 . . 8 4 2 1 . . 8 4 2 1
+ . . . . 0   . o . - 4   . o . o 5   * o . o d   o o o o f
+ . . . . 0   o . - . 8   o . o . a   o . o * b   o o o o f
+ . . . . 0   . - . o 1   . o . o 5   . o * o 7   o o o o f
+ . . . . 0   - . o . 2   o . o . a   o * o . e   o o o o f
