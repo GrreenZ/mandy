@@ -1,4 +1,5 @@
 # vi: ts=2 sw=2 expandtab autoindent
+# Mandelbrot set using different colors and dithering
 # 2021 by Andrzej Borsuk 
 
 REM Load dithering pattern
