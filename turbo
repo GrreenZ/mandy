@@ -1,0 +1,33 @@
+#!/bin/sh
+# Commandline wrapper for:
+# Turbo PASCAL 3.01A for CP/M-80
+
+# Quit with error message
+die() {
+	echo "$@"
+	exit 1
+}
+
+# Slowdown data flow (10 characters/s)
+slow() {
+	sed 's/./&\n/g; s/$/ENTER/' | while read c
+	do
+		if [ "$c" = "ENTER" ]
+		then
+			echo
+		else
+			printf "%c" "$c"
+		fi
+		sleep 0.1
+	done
+}
+
+# Compile file using turbo.com
+
+cat <<-EOF | slow | tnylpo turbo.com
+	yocq
+	c${1:?FILENAME?}
+	q
+EOF
+
+chmod a+x "${1}"
