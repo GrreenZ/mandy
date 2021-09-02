@@ -1,0 +1,147 @@
+#!/bin/sh
+# Miniature package manager for CP/M programs
+# 2021 by Andrzej Borsuk
+#
+# This is simple instalation script for some CP/M programs
+# Software will be downloaded into "dist" directory and installed
+# in current directory (CP/M is unaware of directories)
+
+HERE=$PWD
+DIST=$HERE/dist
+FILE=$DIST/file
+
+
+install_all() {
+	install_turbo
+	install_bascom
+	clean_all
+}
+
+remove_all() {
+	remove_turbo
+	remove_bascom
+	clean_all
+}
+
+clean_all() {
+	rm -fr $FILE
+}
+
+#############################################################################
+# Utilities
+#
+
+# Utility: 1st stage -- Download & Extract files
+get() {
+	ZIP="$1"
+	URL="$2"
+
+	cd $DIST
+	[ -f $ZIP ] || wget -O $ZIP "$URL"
+	unzip -Lud $FILE $ZIP
+}
+
+# Utility: 2nd stage -- Copy files to PWD
+exp() {
+	cd $FILE
+	chmod a+x *.com
+	cp -v $* $HERE
+}
+
+# Utility: Quit with error message
+die() {
+	echo "$*"
+	exit 1
+}
+
+# Utility: Slowdown data flow (10 characters/s)
+slow() {
+	sed 's/./&\n/g; s/$/ENTER/' | while read c
+	do
+		if [ "$c" = "ENTER" ]
+		then
+			echo
+		else
+			printf "%c" "$c"
+		fi
+		sleep 0.1
+	done
+}
+
+
+#############################################################################
+# PACKAGE: turbo
+# Turbo PASCAL 3.01A for CP/M-80
+# http://z80.eu/pas-compiler.html
+
+TURBO_ZIP="tp_301a.zip"
+TURBO_URL="http://www.retroarchive.org/cpm/lang/TP_301A.ZIP"
+TURBO_BIN="turbo.com turbo.msg turbo.ovr"
+
+install_turbo() {
+	get $TURBO_ZIP "$TURBO_URL"
+	cd $FILE
+	# Run instalation program
+	# [S]creen instalation, [6]:ANSI Terminal
+	# [N]o terminal modifications, [8]MHz
+	# [Q]uit
+	cat <<-END | slow | tnylpo tinst.com
+		s6
+		n8
+		q
+	END
+	exp $TURBO_BIN
+}
+
+remove_turbo() {
+	rm -v $TURBO_BIN
+}
+
+
+#############################################################################
+# PACKAGE: basic
+# http://www.retroarchive.org/cpm/lang/lang.htm
+# http://www.retroarchive.org/cpm/lang/Mbasic.com	5.21
+# http://www.retroarchive.org/cpm/lang/mbasic.zip	5.29
+install_mbasic() {
+	BIN=mbasic.com
+	cd $DIST
+	[ -f $BIN ] \
+	|| wget -O $BIN "http://www.retroarchive.org/cpm/lang/Mbasic.com"
+	chmod a+x $BIN
+	cp -v $BIN $HERE
+}
+
+remove_mbasic() {
+	rm -v mbasic.com
+}
+
+
+#############################################################################
+# PACKAGE: bascom
+# http://www.retroarchive.org/cpm/lang/lang.htm
+# http://www.retroarchive.org/cpm/lang/BASCOM.ZIP
+# http://www.retroarchive.org/cpm/lang/mbasref.zip 
+
+BASCOM_ZIP="bascom.zip"
+BASCOM_URL="http://www.retroarchive.org/cpm/lang/BASCOM.ZIP"
+BASCOM_BIN="mbasic.com bascom.com l80.com obslib.rel bcload"
+
+install_bascom() {
+	get $BASCOM_ZIP "$BASCOM_URL"
+	exp $BASCOM_BIN
+}
+
+remove_bascom() {
+	rm -v $BASCOM_BIN
+}
+
+
+#############################################################################
+# MAIN
+#
+mkdir -p $DIST $FILE
+cd $DIST || die "No dist directory ($DIST)"
+cd $FILE || die "No file directory ($FILE)"
+cd $HERE || die "Can't access $PWD"
+"${1:-install}_${2:-all}" "$3"

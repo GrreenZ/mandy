@@ -1,13 +1,16 @@
 #!/bin/sh
 # Commandline wrapper for:
 # Turbo PASCAL 3.01A for CP/M-80
+# by 2021 Andrzej Borsuk
 
+# Utility script
 # Quit with error message
 die() {
 	echo "$@"
 	exit 1
 }
 
+# Utility script
 # Slowdown data flow (10 characters/s)
 slow() {
 	sed 's/./&\n/g; s/$/ENTER/' | while read c
@@ -22,12 +25,19 @@ slow() {
 	done
 }
 
-# Compile file using turbo.com
+# MAIN
 
+FILE=${1:?FILE?}
+
+[ -f "$FILE" ] || FILE="$FILE.pas"
+[ -f "$FILE" ] || die "No file $FILE"
+
+# Compile file using turbo.com
 cat <<-EOF | slow | tnylpo turbo.com
 	yocq
-	c${1:?FILENAME?}
+	c${1}
 	q
 EOF
 
-chmod a+x "${1}"
+printf "\033[m"
+chmod -v a+x "${FILE%.pas}.com"
