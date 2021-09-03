@@ -5,11 +5,20 @@
                                                                                  
 #############################################################################
 #
+# CP/M HITECH-C
+#
+
+.SUFFIXES: .c .com
+.c.com:
+	tnylpo c.com $(CFLAGS) $*.c $(LIBS)
+	chmod a+x $*.com
+
+#############################################################################
+#
 # CP/M TURBO Pascal
 #
 
 .SUFFIXES: .pas .com
-
 .pas.com:
 	turbo $*
 

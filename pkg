@@ -12,12 +12,14 @@ FILE=$DIST/file
 
 
 install_all() {
+	install_hitech
 	install_turbo
 	install_bascom
 	clean_all
 }
 
 remove_all() {
+	remove_hitech
 	remove_turbo
 	remove_bascom
 	clean_all
@@ -66,6 +68,48 @@ slow() {
 		fi
 		sleep 0.1
 	done
+}
+
+
+#############################################################################
+# PACKAGE: hitech
+# Hi-Tech C Compiler (CP/M-80) V3.09-9
+# https://github.com/agn453/HI-TECH-Z80-C
+
+HITECH_ZIP="hitech-c-v3.09-9.zip"
+HITECH_URL="https://github.com/agn453/HI-TECH-Z80-C/archive/refs/tags/v3.09-9.zip"
+HITECH_BIN="hitech"
+
+install_hitech() {
+
+	CC="c309-9"
+	BIN="$HERE/$HITECH_BIN"
+
+	get $HITECH_ZIP "$HITECH_URL"
+	mkdir -p $BIN || die "Unable to create $HITECH_BIN"
+
+	cd $FILE/hi-tech-*
+	cp -Rv dist/*		$BIN/
+	cp -Rv doc/htcz80.txt	$BIN/manual.txt
+	cp -Rv doc/debugman.txt	$BIN/debug.txt
+
+	sed '
+		/DEFPATH/s/0:A:/H:/;
+		/stat."P1.COM"/,+2d;
+		/statbuf/d;
+	' cpm/$CC.c >$BIN/c.c
+
+	cd $BIN
+	cat $HERE/.tnylpo.conf
+	tnylpo $CC.com c.c
+	chmod a+x *.com
+
+	cp -v c.com $HERE
+	
+}
+
+remove_hitech() {
+	rm -fr $HITECH_BIN c.com
 }
 
 

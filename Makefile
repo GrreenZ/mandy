@@ -5,7 +5,10 @@
 
 include rules.mk
 
+LIBS =	-lf
+
 ALL  =	mandp.com
+ALL +=  mandc.com mandc1.com
 ALL +=	mandy.tap mandy1.tap mandy0.tap
 ALL +=	cal-hello.tap hi.tap hello.tap
 
@@ -16,7 +19,6 @@ clean:
 	rm -f $(ALL)
 distclean:	clean
 	./pkg remove all
-	rm .env
 
 # CP/M compilers
 mandp.com: turbo.com
